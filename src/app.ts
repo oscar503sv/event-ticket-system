@@ -9,7 +9,7 @@ const app = createServer();
  const port = Number(process.env.PORT || 3000);
  app.listen(port, () => {
    logger.info(`Servidor iniciado en puerto ${port}`);
-   logger.info(`Documentación API disponible en http://localhost:${port}/swagger`);
+   logger.info(`Documentación API disponible en http://localhost:${port}/docs`);
  });
  
  return app;

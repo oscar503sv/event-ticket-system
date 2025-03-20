@@ -9,6 +9,7 @@ export function createServer() {
     .use(cors())
     .use(
       swagger({
+        path: '/docs',
         documentation: {
           info: {
             title: 'API de Gestión de Eventos y Tickets',
