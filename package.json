@@ -19,6 +19,7 @@
     "@elysiajs/jwt": "^0.8.0",
     "@elysiajs/swagger": "^0.8.0",
     "bcryptjs": "^2.4.3",
+    "dotenv": "^16.5.0",
     "drizzle-orm": "^0.29.0",
     "elysia": "^0.8.0",
     "pg": "^8.11.3",

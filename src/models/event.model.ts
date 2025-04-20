@@ -4,6 +4,7 @@ import { pgTable, serial, varchar, timestamp, integer, boolean, text, decimal } 
 export const events = pgTable('events', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
+  type: varchar('type', { length: 50 }).notNull(),
   description: text('description'),
   location: varchar('location', { length: 255 }).notNull(),
   startDate: timestamp('start_date').notNull(),
