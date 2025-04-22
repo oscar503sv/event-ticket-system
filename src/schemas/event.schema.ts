@@ -1,4 +1,5 @@
 // src/schemas/event.schema.ts
+import { or } from 'drizzle-orm';
 import { z } from 'zod';
 
 export const createEventSchema = z.object({
@@ -7,6 +8,7 @@ export const createEventSchema = z.object({
   type: z.enum(['Concierto', 'Festival', 'Conferencia', 'Taller','Deportivo', 'Otro'], {
     errorMap: () => ({ message: 'Tipo de evento inválido' }),
   }),
+  organizerId: z.number(), // Referencia al ID del usuario organizador
   location: z.string().min(3, 'La ubicación debe tener al menos 3 caracteres'),
   startDate: z.string().transform((str) => new Date(str)),
   endDate: z.string().transform((str) => new Date(str)),

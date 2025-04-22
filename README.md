@@ -25,16 +25,17 @@ Sistema backend completo para la gestión de eventos, venta de tickets y procesa
 1. Clonar el repositorio
 2. Copiar `.env.example` a `.env` y configurar las variables de entorno
 3. Instalar dependencias con `bun install`
-4. Ejecutar migraciones de base de datos con `bun run migrate`
-5. Iniciar el servidor con `bun run dev`
+4. Ejecutar migraciones de base de datos con `bun migrate`
+5. Iniciar el servidor con `bun dev`
 
 ## Documentación
 
-La documentación de la API está disponible en `/swagger` cuando el servidor está en ejecución.
+La documentación de la API está disponible en `/docs` cuando el servidor está en ejecución.
 
 ## Estructura del Proyecto
 
-- `/src/config`: Configuraciones del servidor, base de datos y logger
+- `/src/config`: Configuraciones del servidor y logger
+- `/src/db`: Configuraciones de base de datos usando Drizzle ORM
 - `/src/controllers`: Controladores de la API
 - `/src/middlewares`: Middlewares para autenticación, validación y manejo de errores
 - `/src/models`: Modelos de datos para Drizzle ORM

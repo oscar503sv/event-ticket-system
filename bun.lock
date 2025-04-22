@@ -5,12 +5,12 @@
       "name": "api-events-management",
       "dependencies": {
         "@elysiajs/cors": "^0.8.0",
-        "@elysiajs/jwt": "^0.8.0",
+        "@elysiajs/jwt": "^1.2.0",
         "@elysiajs/swagger": "^0.8.0",
         "bcryptjs": "^2.4.3",
         "dotenv": "^16.5.0",
         "drizzle-orm": "^0.29.0",
-        "elysia": "^0.8.0",
+        "elysia": "0.8.17",
         "pg": "^8.11.3",
         "postgres": "^3.4.3",
         "qrcode": "^1.5.3",
@@ -55,7 +55,7 @@
 
     "@elysiajs/cors": ["@elysiajs/cors@0.8.0", "", { "peerDependencies": { "elysia": ">= 0.8.0" } }, "sha512-NADcOsokALRv4nljA5DYJPJdIJ7iwq+ouV5lH5W+hLgZRMYsfbKShg82QSmxd7BJQFuGSv2dIIF2dfG9ieUyng=="],
 
-    "@elysiajs/jwt": ["@elysiajs/jwt@0.8.0", "", { "dependencies": { "jose": "^4.14.4" }, "peerDependencies": { "elysia": ">= 0.8.0" } }, "sha512-UtnxsviaGoxdDajquBK751bi03IfFNjKfzN/pBU7VMlo+StwmeYlRAY3s8EIt8BSMzRhgCR+PLZ2qnwnK0FVeQ=="],
+    "@elysiajs/jwt": ["@elysiajs/jwt@1.2.0", "", { "dependencies": { "jose": "^4.14.4" }, "peerDependencies": { "elysia": ">= 1.2.0" } }, "sha512-5iMoZucIKNAqPKW3n6RBIyCnDWG3kOcqA4WZKtqEff+IjV6AN3dlMSE2XsS0xjIvusLD0UBXS8cxQ9NwIcj6ew=="],
 
     "@elysiajs/swagger": ["@elysiajs/swagger@0.8.5", "", { "dependencies": { "lodash.clonedeep": "^4.5.0", "openapi-types": "^12.1.3" }, "peerDependencies": { "elysia": ">= 0.8.0" } }, "sha512-8u4poCU62z8lgWuf4Edp84j6ZOdVLGMuFfbd85T/s7bEKUYHUdhbdd9lH5HFf8EKoJTmhpd+OyO4TxOF+vmOcA=="],
 
