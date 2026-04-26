@@ -7,7 +7,7 @@ import {
   validateTicketHandler,
 } from "../controllers/ticket.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
-import { validatorOrAdminMiddleware } from "../middlewares/role.middleware";
+import { adminMiddleware, validatorOrAdminMiddleware } from "../middlewares/role.middleware";
 
 export const ticketRoutes = new Elysia({ prefix: "/tickets" })
   // Todas las rutas de tickets requieren autenticación
@@ -33,16 +33,19 @@ export const ticketRoutes = new Elysia({ prefix: "/tickets" })
       security: [{ bearerAuth: [] }],
     },
   })
-  // POST /tickets - Crear ticket (compra manual)
+  // POST /tickets - Crear ticket manual (SOLO ADMIN - DEPRECADO)
+  .use(adminMiddleware)
   .post("/", createTicketHandler, {
     body: t.Object({
       eventId: t.Number(),
     }),
     detail: {
       tags: ["Tickets"],
-      summary: "Crear ticket",
-      description: "Crea un ticket para un evento (compra manual)",
+      summary: "[ADMIN ONLY - DEPRECADO] Crear ticket manual",
+      description:
+        "Crea un ticket manualmente (solo para administradores). DEPRECADO: Los usuarios deben usar el flujo de pagos con Stripe (/payments/create-checkout-session)",
       security: [{ bearerAuth: [] }],
+      deprecated: true,
     },
   })
   // POST /tickets/validate/:code - Validar ticket (VALIDATOR/ADMIN)
