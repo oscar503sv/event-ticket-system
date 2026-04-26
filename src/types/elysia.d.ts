@@ -1,7 +1,7 @@
-import type { JWTPayload } from './jwt';
-import '@elysiajs/jwt';
+import type { JWTPayload } from "./jwt";
+import "@elysiajs/jwt";
 
-declare module 'elysia' {
+declare module "elysia" {
   interface ElysiaContext {
     jwt: {
       sign: (payload: JWTPayload) => Promise<string>;
