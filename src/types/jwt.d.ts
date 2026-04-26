@@ -1,4 +1,4 @@
-declare module '@elysiajs/jwt' {
+declare module "@elysiajs/jwt" {
   interface JWT {
     sign: (payload: JWTPayload) => Promise<string>;
     verify: (token: string) => Promise<JWTPayload | null>;
