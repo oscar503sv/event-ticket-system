@@ -186,6 +186,101 @@ class TicketService {
       throw error;
     }
   }
+
+  /**
+   * Crea un ticket después de un pago exitoso
+   * Solo debe ser llamado desde el webhook handler de Stripe
+   *
+   * Incluye validaciones de seguridad:
+   * - Re-valida capacidad disponible
+   * - Previene duplicados por paymentId (idempotencia)
+   *
+   * @param data - Datos del pago para crear el ticket
+   * @returns Ticket creado
+   */
+  async createTicketFromPayment(data: {
+    eventId: number;
+    userId: number;
+    paymentId: string;
+    paymentStatus: "completed";
+  }): Promise<Ticket> {
+    try {
+      // 1. Re-validar capacidad (por si cambió durante el checkout)
+      const { available } = await eventService.checkEventCapacity(data.eventId);
+
+      if (available <= 0) {
+        // Si no hay capacidad, el ticket no se crea
+        // NOTA: En este caso, considerar implementar reembolso automático
+        logger.error(`Sin capacidad al crear ticket desde pago`, {
+          eventId: data.eventId,
+          paymentId: data.paymentId,
+        });
+        throw new Error("No hay capacidad disponible - se requiere reembolso");
+      }
+
+      // 2. Verificar duplicados por paymentId (idempotencia para webhooks)
+      const existingByPayment = await db.select().from(tickets).where(eq(tickets.paymentId, data.paymentId)).limit(1);
+
+      if (existingByPayment.length > 0) {
+        logger.warn(`Ticket ya existe para paymentId: ${data.paymentId}`, {
+          ticketCode: existingByPayment[0].ticketCode,
+        });
+        return existingByPayment[0];
+      }
+
+      // 3. Generar código único y QR
+      const ticketCode = await this.generateUniqueTicketCode();
+      const qrCode = await generateQR(ticketCode);
+
+      // 4. Crear ticket en base de datos
+      const newTicket: NewTicket = {
+        eventId: data.eventId,
+        userId: data.userId,
+        ticketCode,
+        qrCode,
+        isUsed: false,
+        paymentId: data.paymentId,
+        paymentStatus: data.paymentStatus,
+      };
+
+      const [createdTicket] = await db.insert(tickets).values(newTicket).returning();
+
+      logger.info(`Ticket creado desde pago exitoso`, {
+        ticketCode: createdTicket.ticketCode,
+        eventId: data.eventId,
+        userId: data.userId,
+        paymentId: data.paymentId,
+      });
+
+      return createdTicket;
+    } catch (error) {
+      logger.error("Error creando ticket desde pago:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Verifica si un usuario ya tiene un ticket completado para un evento
+   * Usado para prevenir compras duplicadas
+   *
+   * @param eventId - ID del evento
+   * @param userId - ID del usuario
+   * @returns true si ya tiene un ticket completado
+   */
+  async checkExistingTicket(eventId: number, userId: number): Promise<boolean> {
+    try {
+      const existing = await db
+        .select()
+        .from(tickets)
+        .where(and(eq(tickets.eventId, eventId), eq(tickets.userId, userId), eq(tickets.paymentStatus, "completed")))
+        .limit(1);
+
+      return existing.length > 0;
+    } catch (error) {
+      logger.error("Error verificando ticket existente:", error);
+      throw error;
+    }
+  }
 }
 
 export const ticketService = new TicketService();
