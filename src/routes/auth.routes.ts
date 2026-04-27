@@ -5,7 +5,7 @@ import { authMiddleware } from "../middlewares/auth.middleware";
 import { loginUserSchema, registerUserSchema } from "../schemas/user.schema";
 
 export const authRoutes = new Elysia({ prefix: "/auth" })
-  // POST /auth/register - Registro de usuarios
+  // POST /auth/register - User registration
   .post("/register", registerHandler, {
     body: t.Object({
       email: t.String({ format: "email" }),
@@ -18,11 +18,13 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
     }),
     detail: {
       tags: ["Auth"],
-      summary: "Registrar nuevo usuario",
-      description: "Crea una nueva cuenta de usuario",
+      summary: "Register new user",
+      description:
+        "Creates a new user account. Default role is USER if not specified. " +
+        "Returns user data and JWT token for immediate authentication.",
     },
   })
-  // POST /auth/login - Inicio de sesión
+  // POST /auth/login - User login
   .post("/login", loginHandler, {
     body: t.Object({
       email: t.String({ format: "email" }),
@@ -30,17 +32,19 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
     }),
     detail: {
       tags: ["Auth"],
-      summary: "Iniciar sesión",
-      description: "Autentica un usuario y retorna un token JWT",
+      summary: "User login",
+      description:
+        "Authenticates user credentials and returns a JWT token. " +
+        "Token expires in 24 hours (configurable via JWT_EXPIRES_IN env var).",
     },
   })
-  // GET /auth/me - Obtener perfil del usuario actual (protegido)
+  // GET /auth/me - Get current user profile (protected)
   .use(authMiddleware)
   .get("/me", getMeHandler, {
     detail: {
       tags: ["Auth"],
-      summary: "Obtener perfil actual",
-      description: "Retorna los datos del usuario autenticado",
+      summary: "Get current user profile",
+      description: "Returns authenticated user's data including ID, email, name, role, and account status.",
       security: [{ bearerAuth: [] }],
     },
   });
