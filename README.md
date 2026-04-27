@@ -1,76 +1,76 @@
-# Sistema de Gestión de Eventos y Tickets
+# Event Ticket Management System
 
-Sistema backend completo para la gestión de eventos, venta de tickets y procesamiento de pagos con Stripe.
+Complete backend system for event management, ticket sales, and payment processing with Stripe.
 
-## Características
+## Features
 
-- Autenticación de usuarios con JWT
-- Gestión completa de eventos (CRUD)
-- Creación y validación de tickets con códigos QR
-- **Integración con Stripe Checkout Sessions (Embedded UI)**
-- **Procesamiento de pagos mediante webhooks**
-- Documentación API con Swagger
-- Logger con Winston para registro de actividades
-- Base de datos PostgreSQL con Drizzle ORM
-- TypeScript para desarrollo robusto
+- User authentication with JWT
+- Complete event management (CRUD)
+- Ticket creation and validation with QR codes
+- **Stripe Checkout Sessions integration (Hosted UI)**
+- **Payment processing via webhooks**
+- API documentation with Swagger
+- Winston logger for activity tracking
+- PostgreSQL database with Drizzle ORM
+- TypeScript for robust development
 
-## Requisitos
+## Requirements
 
-- Node.js (v18 o superior)
-- Bun (v1.0.0 o superior)
-- PostgreSQL (v14 o superior)
-- Cuenta de Stripe (test o producción)
-- Stripe CLI (para testing local de webhooks)
+- Node.js (v18 or higher)
+- Bun (v1.0.0 or higher)
+- PostgreSQL (v14 or higher)
+- Stripe account (test or production)
+- Stripe CLI (for local webhook testing)
 
-## Configuración
+## Setup
 
-### 1. Configuración Básica
+### 1. Basic Configuration
 
-1. Clonar el repositorio
-2. Instalar dependencias:
+1. Clone the repository
+2. Install dependencies:
    ```bash
    bun install
    ```
 
-### 2. Configuración de Base de Datos
+### 2. Database Configuration
 
-1. Crear una base de datos PostgreSQL
-2. Copiar `.env.example` a `.env`
-3. Configurar `DATABASE_URL` en `.env`:
+1. Create a PostgreSQL database
+2. Copy `.env.example` to `.env`
+3. Configure `DATABASE_URL` in `.env`:
    ```
-   DATABASE_URL=postgresql://usuario:password@localhost:5432/nombre_db
+   DATABASE_URL=postgresql://user:password@localhost:5432/database_name
    ```
-4. Ejecutar migraciones:
+4. Run migrations:
    ```bash
    bun migrate
    ```
 
-### 3. Configuración de Stripe
+### 3. Stripe Configuration
 
-#### Obtener API Keys
+#### Get API Keys
 
-1. Ir a [Stripe Dashboard](https://dashboard.stripe.com/)
-2. En modo Test, obtener las claves desde **Developers > API Keys**:
+1. Go to [Stripe Dashboard](https://dashboard.stripe.com/)
+2. In Test mode, get your keys from **Developers > API Keys**:
    - **Publishable key** (pk_test_...)
    - **Secret key** (sk_test_...)
 
-#### Configurar Variables de Entorno
+#### Configure Environment Variables
 
-Agregar al archivo `.env`:
+Add to your `.env` file:
 
 ```env
 # Stripe Configuration
-STRIPE_SECRET_KEY=sk_test_tu_clave_secreta
-STRIPE_PUBLISHABLE_KEY=pk_test_tu_clave_publicable
-STRIPE_WEBHOOK_SECRET=whsec_tu_webhook_secret
+STRIPE_SECRET_KEY=sk_test_your_secret_key
+STRIPE_PUBLISHABLE_KEY=pk_test_your_publishable_key
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
 
-# Frontend URL (para redirecciones después del pago)
+# Frontend URL (for post-payment redirects)
 FRONTEND_URL=http://localhost:5173
 ```
 
-#### Configurar Webhook Secret (Testing Local)
+#### Configure Webhook Secret (Local Testing)
 
-1. Instalar Stripe CLI:
+1. Install Stripe CLI:
    ```bash
    # macOS
    brew install stripe/stripe-cli/stripe
@@ -81,249 +81,308 @@ FRONTEND_URL=http://localhost:5173
    sudo mv stripe /usr/local/bin/
    ```
 
-2. Autenticar Stripe CLI:
+2. Authenticate Stripe CLI:
    ```bash
    stripe login
    ```
 
-3. Iniciar el servidor:
+3. Start the server:
    ```bash
    bun dev
    ```
 
-4. En otra terminal, iniciar el webhook forwarding:
+4. In another terminal, start webhook forwarding:
    ```bash
    stripe listen --forward-to localhost:3000/webhooks/stripe
    ```
 
-5. Copiar el **webhook signing secret** (whsec_...) mostrado y agregarlo a `.env`
+5. Copy the **webhook signing secret** (whsec_...) shown and add it to `.env`
 
-#### Configurar Webhook en Producción
+#### Configure Webhook in Production
 
-1. En [Stripe Dashboard](https://dashboard.stripe.com/) ir a **Developers > Webhooks**
-2. Click en **Add endpoint**
-3. Configurar:
-   - **Endpoint URL**: `https://tu-dominio.com/webhooks/stripe`
+1. In [Stripe Dashboard](https://dashboard.stripe.com/) go to **Developers > Webhooks**
+2. Click **Add endpoint**
+3. Configure:
+   - **Endpoint URL**: `https://your-domain.com/webhooks/stripe`
    - **Events to send**: 
      - `checkout.session.completed`
      - `checkout.session.expired`
      - `checkout.session.async_payment_succeeded`
      - `checkout.session.async_payment_failed`
-4. Copiar el **Signing secret** (whsec_...) y agregarlo a `.env` de producción
+4. Copy the **Signing secret** (whsec_...) and add it to your production `.env`
 
-### 4. Configuración JWT
+### 4. JWT Configuration
 
-Generar un secret seguro para JWT:
+Generate a secure secret for JWT:
 
 ```bash
 openssl rand -base64 32
 ```
 
-Agregarlo a `.env`:
+Add it to `.env`:
 
 ```env
-JWT_SECRET=tu_secret_generado_aqui
+JWT_SECRET=your_generated_secret_here
 JWT_EXPIRES_IN=24h
 ```
 
-### 5. Iniciar el Servidor
+### 5. Start the Server
 
 ```bash
-# Desarrollo (con hot reload)
+# Development (with hot reload)
 bun dev
 
-# Producción
+# Production
 bun start
 ```
 
-El servidor estará disponible en `http://localhost:3000`
+The server will be available at `http://localhost:3000`
 
-## Testing del Flujo de Pagos
+## Testing Payment Flow
 
-### Opción 1: Script Automatizado
+### Option 1: Automated Script
 
-Ejecutar el script de testing E2E:
+Run the E2E testing script:
 
 ```bash
 ./scripts/test-payment-flow.sh
 ```
 
-Este script:
-- Registra un usuario de prueba
-- Crea una sesión de checkout
-- Muestra instrucciones para simular el pago
-- Verifica que el ticket se creó correctamente
+This script:
+- Registers a test user
+- Creates a checkout session
+- Shows instructions to simulate payment
+- Verifies the ticket was created correctly
 
-### Opción 2: Testing Manual
+### Option 2: Manual Testing
 
-1. **Registrar usuario**:
+1. **Register user**:
    ```bash
    curl -X POST http://localhost:3000/auth/register \
      -H "Content-Type: application/json" \
      -d '{"email":"test@example.com","password":"Test123456","firstName":"Test","lastName":"User"}'
    ```
 
-2. **Iniciar sesión**:
+2. **Login**:
    ```bash
    curl -X POST http://localhost:3000/auth/login \
      -H "Content-Type: application/json" \
      -d '{"email":"test@example.com","password":"Test123456"}'
    ```
 
-3. **Crear sesión de checkout**:
+3. **Create checkout session**:
    ```bash
    curl -X POST http://localhost:3000/payments/create-checkout-session \
-     -H "Authorization: Bearer TU_TOKEN_AQUI" \
+     -H "Authorization: Bearer YOUR_TOKEN_HERE" \
      -H "Content-Type: application/json" \
-     -d '{"eventId":1,"quantity":1}'
+     -d '{"eventId":1}'
    ```
 
-4. **Simular pago exitoso** (requiere Stripe CLI):
-   ```bash
-   stripe trigger checkout.session.completed --add checkout_session:id=SESSION_ID
-   ```
+4. **Complete payment**: Open the returned Stripe Checkout URL in a browser and use test card `4242 4242 4242 4242`
 
-5. **Verificar tickets**:
+5. **Verify tickets**:
    ```bash
    curl -X GET http://localhost:3000/tickets/my-tickets \
-     -H "Authorization: Bearer TU_TOKEN_AQUI"
+     -H "Authorization: Bearer YOUR_TOKEN_HERE"
    ```
 
-### Tarjetas de Prueba de Stripe
+### Stripe Test Cards
 
-En modo test, usar estas tarjetas:
+In test mode, use these cards:
 
-- **Pago exitoso**: `4242 4242 4242 4242`
-- **Pago rechazado**: `4000 0000 0000 0002`
-- **Requiere autenticación 3D Secure**: `4000 0025 0000 3155`
-- **Fecha de expiración**: Cualquier fecha futura
-- **CVV**: Cualquier 3 dígitos
+- **Successful payment**: `4242 4242 4242 4242`
+- **Payment declined**: `4000 0000 0000 0002`
+- **Requires 3D Secure authentication**: `4000 0025 0000 3155`
+- **Expiration date**: Any future date
+- **CVV**: Any 3 digits
 
-## Documentación
+## Documentation
 
 ### API Documentation (Swagger)
 
-La documentación interactiva de la API está disponible en:
+Interactive API documentation is available at:
 
 ```
 http://localhost:3000/docs
 ```
 
-### Documentación Adicional
+### Additional Documentation
 
-- [Seguridad con Stripe](./docs/stripe-security.md) - Mejores prácticas de seguridad
-- [Testing con Stripe](./docs/stripe-testing.md) - Guía completa de testing
+- [Stripe Security Best Practices](./docs/stripe-security.md)
+- [Stripe Testing Guide](./docs/stripe-testing.md)
 
-## Estructura del Proyecto
+## Project Structure
 
-- `/src/config`: Configuraciones del servidor, logger y Stripe
-- `/src/db`: Configuraciones de base de datos usando Drizzle ORM
-- `/src/controllers`: Controladores de la API
-- `/src/middlewares`: Middlewares para autenticación, validación y manejo de errores
-- `/src/routes`: Definición de rutas de la API
-- `/src/schemas`: Esquemas de validación con Zod
-- `/src/services`: Lógica de negocio (eventos, tickets, pagos)
-- `/src/utils`: Utilidades para JWT, QR, respuestas y validación
-- `/scripts`: Scripts de testing y utilidades
+```
+├── src/
+│   ├── config/          # Server, logger, and Stripe configuration
+│   ├── controllers/     # API controllers
+│   ├── db/              # Database configuration with Drizzle ORM
+│   │   └── tables/      # Database table schemas
+│   ├── middlewares/     # Authentication, validation, and error handling
+│   ├── routes/          # API route definitions
+│   ├── schemas/         # Validation schemas with Zod
+│   ├── services/        # Business logic (events, tickets, payments)
+│   ├── types/           # TypeScript type definitions
+│   └── utils/           # Utilities (JWT, QR, responses, validation)
+├── scripts/             # Testing scripts and utilities
+├── docs/                # Additional documentation
+└── drizzle/             # Database migrations
+```
 
-## Endpoints Principales
+## Main Endpoints
 
-### Autenticación
-- `POST /auth/register`: Registro de usuarios
-- `POST /auth/login`: Inicio de sesión
-- `GET /auth/me`: Obtener información del usuario actual
+### Authentication
+- `POST /auth/register`: Register new user
+- `POST /auth/login`: User login
+- `GET /auth/me`: Get current user information
 
-### Eventos
-- `GET /events`: Listar eventos
-- `GET /events/upcoming`: Listar eventos futuros
-- `GET /events/:id`: Obtener evento por ID
-- `POST /events`: Crear evento (ORGANIZER/ADMIN)
-- `PUT /events/:id`: Actualizar evento (ORGANIZER/ADMIN)
-- `DELETE /events/:id`: Eliminar evento (ORGANIZER/ADMIN)
+### Events
+- `GET /events`: List all events
+- `GET /events/upcoming`: List upcoming events
+- `GET /events/:id`: Get event by ID
+- `POST /events`: Create event (ORGANIZER/ADMIN)
+- `PUT /events/:id`: Update event (ORGANIZER/ADMIN)
+- `DELETE /events/:id`: Delete event (ORGANIZER/ADMIN)
 
 ### Tickets
-- `GET /tickets/my-tickets`: Obtener tickets del usuario
-- `GET /tickets/:code`: Obtener ticket por código
-- `POST /tickets`: ⚠️ **DEPRECADO** - Crear ticket manual (ADMIN only, usar pagos en su lugar)
-- `POST /tickets/validate/:code`: Validar ticket (VALIDATOR/ADMIN)
+- `GET /tickets/my-tickets`: Get user's tickets
+- `GET /tickets/:code`: Get ticket by code
+- `POST /tickets`: ⚠️ **DEPRECATED** - Manual ticket creation (ADMIN only, use payments instead)
+- `POST /tickets/validate/:code`: Validate ticket (VALIDATOR/ADMIN)
 
-### Pagos (Stripe)
-- `POST /payments/create-checkout-session`: Crear sesión de pago con Stripe
-- `GET /payments/verify/:sessionId`: Verificar estado de pago
-- `POST /webhooks/stripe`: Webhook para eventos de Stripe (no requiere auth JWT)
+### Payments (Stripe)
+- `POST /payments/create-checkout-session`: Create Stripe payment session
+- `GET /payments/verify/:sessionId`: Verify payment status
+- `POST /webhooks/stripe`: Webhook for Stripe events (no JWT auth required)
 
-## Arquitectura de Pagos
+## Payment Architecture
 
-El sistema utiliza **Stripe Checkout Sessions** con las siguientes características:
+The system uses **Stripe Checkout Sessions (Hosted UI)** with the following features:
 
-1. **Flujo del Usuario**:
-   - Usuario selecciona un evento y cantidad de tickets
-   - Backend crea una sesión de Checkout con Stripe
-   - Frontend muestra el formulario de pago embebido
-   - Usuario completa el pago
-   - Stripe envía webhook al backend
-   - Backend crea el ticket automáticamente
+### 1. User Flow:
+   - User selects an event
+   - Backend creates a Checkout Session with Stripe
+   - User is redirected to Stripe's hosted checkout page
+   - User completes payment on Stripe's secure page
+   - Stripe sends webhook to backend
+   - Backend automatically creates the ticket
+   - User is redirected back to success page
 
-2. **Seguridad**:
-   - Verificación de firma de webhooks con `stripe-signature` header
-   - Idempotencia en creación de tickets (previene duplicados)
-   - Validación de capacidad del evento antes de crear la sesión
-   - Los tickets se crean SOLO después de pago confirmado
+### 2. Security:
+   - Webhook signature verification with `stripe-signature` header
+   - Idempotency in ticket creation (prevents duplicates)
+   - Event capacity validation before creating session
+   - Tickets are created ONLY after confirmed payment
+   - One ticket per user per event enforcement
 
-3. **Eventos de Stripe Soportados**:
-   - `checkout.session.completed`: Pago completado
-   - `checkout.session.expired`: Sesión expiró sin pago
-   - `checkout.session.async_payment_succeeded`: Pago asíncrono exitoso
-   - `checkout.session.async_payment_failed`: Pago asíncrono fallido
+### 3. Supported Stripe Events:
+   - `checkout.session.completed`: Payment completed successfully
+   - `checkout.session.expired`: Session expired without payment
+   - `checkout.session.async_payment_succeeded`: Async payment succeeded
+   - `checkout.session.async_payment_failed`: Async payment failed
 
-## Roles del Sistema
+## System Roles
 
-- **USER**: Usuario estándar (puede comprar tickets)
-- **ORGANIZER**: Puede crear y gestionar eventos
-- **VALIDATOR**: Puede validar tickets en eventos
-- **ADMIN**: Acceso completo al sistema
+- **USER**: Standard user (can purchase tickets)
+- **ORGANIZER**: Can create and manage events
+- **VALIDATOR**: Can validate tickets at events
+- **ADMIN**: Full system access
 
-## Comandos Útiles
+## Useful Commands
 
 ```bash
-# Desarrollo
-bun dev                  # Iniciar servidor con hot reload
-bun typecheck            # Verificar tipos TypeScript
-bun lint                 # Linter con Biome
-bun format               # Formatear código
+# Development
+bun dev                  # Start server with hot reload
+bun typecheck            # Check TypeScript types
+bun lint                 # Lint with Biome
+bun format               # Format code
 
-# Base de datos
-bun migrate              # Aplicar migraciones
-bun generate             # Generar migraciones
+# Database
+bun migrate              # Apply migrations
+bun generate             # Generate migrations
 
 # Testing
-bun test                 # Ejecutar tests
-./scripts/test-payment-flow.sh  # Test E2E de pagos
+bun test                 # Run tests
+./scripts/test-payment-flow.sh  # E2E payment test
 
 # Stripe
 stripe listen --forward-to localhost:3000/webhooks/stripe  # Webhook forwarding
-stripe trigger checkout.session.completed                  # Simular evento
+stripe trigger checkout.session.completed                  # Simulate event
 ```
 
 ## Troubleshooting
 
 ### Error: "Webhook signature verification failed"
 
-- Asegúrate de que `STRIPE_WEBHOOK_SECRET` esté configurado
-- Verifica que Stripe CLI esté corriendo con `stripe listen`
-- En producción, verifica que el secret coincida con el del dashboard
+- Ensure `STRIPE_WEBHOOK_SECRET` is configured
+- Verify Stripe CLI is running with `stripe listen`
+- In production, verify the secret matches the one in dashboard
 
-### Error: "No hay capacidad disponible"
+### Error: "No capacity available"
 
-- El evento tiene `availableCapacity = 0`
-- Verifica la capacidad del evento con `GET /events/:id`
-- Actualiza la capacidad si es necesario (ORGANIZER/ADMIN)
+- The event has `availableCapacity = 0`
+- Check event capacity with `GET /events/:id`
+- Update capacity if needed (ORGANIZER/ADMIN)
 
-### Error: "Ya tienes un ticket para este evento"
+### Error: "You already have a ticket for this event"
 
-- Un usuario solo puede tener un ticket por evento
-- Verifica tickets existentes con `GET /tickets/my-tickets`
+- A user can only have one ticket per event
+- Check existing tickets with `GET /tickets/my-tickets`
 
-## Licencia
+### Webhook not receiving events
+
+- Verify Stripe CLI is running: `stripe listen --forward-to localhost:3000/webhooks/stripe`
+- Check server logs for webhook processing
+- Ensure `STRIPE_WEBHOOK_SECRET` in `.env` matches the one shown by Stripe CLI
+- In production, verify webhook endpoint is publicly accessible
+
+### Payment session creation fails
+
+- Verify event exists and is published
+- Check event has available capacity
+- Ensure user doesn't already have a ticket for the event
+- Verify `STRIPE_SECRET_KEY` is correctly configured
+
+## Technology Stack
+
+- **Runtime**: Bun 1.0+
+- **Framework**: Elysia 1.4.28
+- **Language**: TypeScript (strict mode)
+- **Database**: PostgreSQL with Drizzle ORM
+- **Authentication**: JWT with @elysiajs/jwt
+- **Payments**: Stripe Checkout Sessions
+- **Validation**: Zod schemas
+- **Logging**: Winston
+- **API Docs**: Swagger/OpenAPI
+- **QR Codes**: qrcode library
+- **Linting/Formatting**: Biome
+
+## Environment Variables
+
+Complete list of required environment variables:
+
+```env
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+
+# JWT
+JWT_SECRET=your_secret_key_here
+JWT_EXPIRES_IN=1d
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_your_key
+STRIPE_PUBLISHABLE_KEY=pk_test_your_key
+STRIPE_WEBHOOK_SECRET=whsec_your_secret
+
+# Frontend
+FRONTEND_URL=http://localhost:5173
+
+# Server
+PORT=3000
+NODE_ENV=development
+```
+
+## License
 
 MIT
