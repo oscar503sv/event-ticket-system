@@ -48,7 +48,7 @@ class PaymentService {
       }
 
       // 4. Calcular precio en centavos (Stripe usa centavos)
-      const priceInCents = Math.round(parseFloat(event.price.toString()) * 100);
+      const priceInCents = Math.round(Number.parseFloat(event.price.toString()) * 100);
 
       if (priceInCents <= 0) {
         throw new Error("El precio del evento no es válido");
@@ -56,7 +56,6 @@ class PaymentService {
 
       // 5. Crear Checkout Session con Stripe
       const session = await stripe.checkout.sessions.create({
-        ui_mode: "embedded", // Embedded Checkout UI
         line_items: [
           {
             price_data: {
@@ -72,7 +71,8 @@ class PaymentService {
           },
         ],
         mode: "payment",
-        return_url: `${process.env.FRONTEND_URL || "http://localhost:5173"}/ticket/success?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `${process.env.FRONTEND_URL || "http://localhost:5173"}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.FRONTEND_URL || "http://localhost:5173"}/payment/cancel`,
         metadata: {
           eventId: eventId.toString(),
           userId: userId.toString(),
@@ -136,8 +136,8 @@ class PaymentService {
         throw new Error("Metadata inválida en la sesión");
       }
 
-      const eventId = parseInt(metadata.eventId);
-      const userId = parseInt(metadata.userId);
+      const eventId = Number.parseInt(metadata.eventId);
+      const userId = Number.parseInt(metadata.userId);
 
       // Validar que los IDs son válidos
       if (isNaN(eventId) || isNaN(userId)) {

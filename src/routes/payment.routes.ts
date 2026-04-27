@@ -14,9 +14,6 @@ export const paymentRoutes = new Elysia({ prefix: "/payments" })
   .post("/create-checkout-session", createCheckoutSessionHandler, {
     body: t.Object({
       eventId: t.Number({ minimum: 1 }),
-      quantity: t.Number({ minimum: 1, maximum: 10 }),
-      successUrl: t.Optional(t.String({ format: "uri" })),
-      cancelUrl: t.Optional(t.String({ format: "uri" })),
     }),
     detail: {
       tags: ["Payments"],
