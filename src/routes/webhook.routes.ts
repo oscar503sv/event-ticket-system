@@ -3,28 +3,30 @@ import { Elysia } from "elysia";
 import { handleStripeWebhookHandler } from "../controllers/webhook.controller";
 
 /**
- * Rutas de webhooks
- * IMPORTANTE: El endpoint de webhook NO debe tener autenticación JWT
- * La autenticación se realiza mediante verificación de firma de Stripe
+ * Webhook routes
+ * IMPORTANT: Webhook endpoint does NOT use JWT authentication
+ * Authentication is performed via Stripe signature verification
  *
- * NOTA: Usamos onRequest para capturar el raw body ANTES de que Elysia lo parsee
+ * NOTE: We use onRequest to capture raw body BEFORE Elysia parses it
  */
 export const webhookRoutes = new Elysia({ prefix: "/webhooks" })
   .onRequest(async ({ request }) => {
-    // Solo capturar raw body para el endpoint de webhook de Stripe
+    // Only capture raw body for Stripe webhook endpoint
     const url = new URL(request.url);
     if (url.pathname === "/webhooks/stripe" && request.method === "POST") {
-      // Capturar el raw body antes de que Elysia lo parsee
+      // Capture raw body before Elysia parses it
       const rawBody = await request.text();
-      // Almacenar en una propiedad custom del request
+      // Store in custom request property
       (request as any).rawBody = rawBody;
     }
   })
   .post("/stripe", handleStripeWebhookHandler, {
     detail: {
       tags: ["Webhooks"],
-      summary: "Webhook de Stripe",
+      summary: "Stripe webhook endpoint",
       description:
-        "Endpoint para recibir eventos de Stripe (checkout.session.completed, etc). Requiere verificación de firma.",
+        "Receives and processes Stripe webhook events (checkout.session.completed, etc). " +
+        "This endpoint does NOT require JWT authentication. Instead, it uses Stripe signature verification " +
+        "via the 'stripe-signature' header. Automatically creates tickets after successful payments.",
     },
   });

@@ -21,14 +21,18 @@ export function createServer() {
         path: "/docs",
         documentation: {
           info: {
-            title: "API de Gestión de Eventos y Tickets",
+            title: "Event Ticket Management API",
             version: "1.0.0",
-            description: "API para gestionar eventos, tickets y pagos con autenticación JWT",
+            description:
+              "Complete backend API for event management, ticket sales, and Stripe payment processing. " +
+              "All endpoints return standardized responses with { success, message, data } structure.",
           },
           tags: [
-            { name: "Auth", description: "Autenticación de usuarios" },
-            { name: "Events", description: "Gestión de eventos" },
-            { name: "Tickets", description: "Gestión de tickets" },
+            { name: "Auth", description: "User authentication and registration" },
+            { name: "Events", description: "Event management (CRUD operations)" },
+            { name: "Tickets", description: "Ticket management and validation" },
+            { name: "Payments", description: "Stripe payment processing" },
+            { name: "Webhooks", description: "Stripe webhook handlers" },
           ],
           components: {
             securitySchemes: {
@@ -36,9 +40,16 @@ export function createServer() {
                 type: "http",
                 scheme: "bearer",
                 bearerFormat: "JWT",
+                description: "JWT token obtained from /auth/login endpoint",
               },
             },
           },
+          servers: [
+            {
+              url: "http://localhost:3000",
+              description: "Development server",
+            },
+          ],
         },
       }),
     )
