@@ -24,8 +24,8 @@ export async function handleStripeWebhookHandler(context: any) {
     return errorResponse("Falta firma del webhook");
   }
 
-  // El body debe ser raw string (no JSON parseado)
-  const rawBody = context.body;
+  // El raw body fue capturado en el onRequest hook del route
+  const rawBody = (context.request as any).rawBody;
 
   if (!rawBody || typeof rawBody !== "string") {
     logger.error("Webhook recibido con body inválido", { bodyType: typeof rawBody });
